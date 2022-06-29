@@ -29,12 +29,25 @@ def RecuperationLigneNumUPC(ScrappedContent):
     UPCnumLigne = UPCLigne.next_element
     return UPCnumLigne
 
-def CleanLignetd(LigneACleaner):
+def CleanLigne(LigneACleaner, balisehtml):
     """Clean la chaine de caractere pour ne garder que le contenu et supprimer les balises html"""
     contenu = str(LigneACleaner)
-    contenu = contenu.replace('<td>', '')
-    contenu = contenu.replace('</td>', '')
+    contenu = contenu.replace('<'+balisehtml+'>', '')
+    contenu = contenu.replace('</'+balisehtml+'>', '')
     return contenu
+
+def RecuperationTitre(ScrappedContent):
+    """Recupere le numéro UPC de la page precedement scrappée et parsée"""
+    TitreLigne=ScrappedContent.find('h1')
+    return TitreLigne
+
+def CleanLigneh1(LigneACleaner):
+    """Clean la chaine de caractere pour ne garder que le contenu et supprimer les balises html"""
+    contenu = str(LigneACleaner)
+    contenu = contenu.replace('<h1>', '')
+    contenu = contenu.replace('</h1>', '')
+    return contenu
+
 
 def main():
     """Point d'entrée du programme de scrapping"""
@@ -49,11 +62,13 @@ def main():
     # BookURLScrapped = Vérifie et Recupere le resultat de scrapping et parsing de la page URLlivre
     ScrappingPage = RecuperationEtParsing(BookURL)
     # BookUPC = Recupere l'information dans les données scrappées et la clean
-    TDdeUPC = RecuperationLigneNumUPC(ScrappingPage)
-    BookUPC = CleanLignetd(TDdeUPC)
-
+    BookUPC = RecuperationLigneNumUPC(ScrappingPage)
+    BookUPC = CleanLigne(BookUPC, 'td')
+    print(BookUPC)
     # BookTitle = Recupere l'information dans les données scappées et la clean
-
+    BookTitle = RecuperationTitre(ScrappingPage)
+    BookTitle = CleanLigne(BookTitle, 'h1')
+    print(BookTitle)
     # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
     # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
     # BookNumberAvailable = Recupere l'information dans les données scappées et la clean
