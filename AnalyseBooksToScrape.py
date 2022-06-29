@@ -37,16 +37,22 @@ def CleanLigne(LigneACleaner, balisehtml):
     return contenu
 
 def RecuperationTitre(ScrappedContent):
-    """Recupere le numéro UPC de la page precedement scrappée et parsée"""
+    """Recupere la ligne contenant le titre"""
     TitreLigne=ScrappedContent.find('h1')
     return TitreLigne
 
-def CleanLigneh1(LigneACleaner):
-    """Clean la chaine de caractere pour ne garder que le contenu et supprimer les balises html"""
-    contenu = str(LigneACleaner)
-    contenu = contenu.replace('<h1>', '')
-    contenu = contenu.replace('</h1>', '')
-    return contenu
+def RecuperationLignePriceWithTax(ScrappedContent):
+    """Recupere la ligne contenant le prix avec taxe"""
+    PriceWithTax=ScrappedContent.find(string="Price (incl. tax)")
+    PriceWithTaxLine = PriceWithTax.next_element
+    return PriceWithTaxLine
+
+def RecuperationLignePriceWithoutTax(ScrappedContent):
+    """Recupere la ligne contenant le prix sans tax"""
+    PriceWithoutTax=ScrappedContent.find(string="Price (excl. tax)")
+    PriceWithoutTaxLine = PriceWithoutTax.next_element
+    return PriceWithoutTaxLine
+
 
 
 def main():
@@ -70,7 +76,13 @@ def main():
     BookTitle = CleanLigne(BookTitle, 'h1')
     print(BookTitle)
     # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
+    BookPriceWithTax = RecuperationLignePriceWithTax(ScrappingPage)
+    BookPriceWithTax = CleanLigne(BookPriceWithTax, 'td')
+    print(BookPriceWithTax)
     # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
+    BookPriceWithoutTax = RecuperationLignePriceWithoutTax(ScrappingPage)
+    BookPriceWithoutTax = CleanLigne(BookPriceWithoutTax, 'td')
+    print(BookPriceWithoutTax)
     # BookNumberAvailable = Recupere l'information dans les données scappées et la clean
     # BookDescription = Recupere l'information dans les données scappées et la clean
     # BookCategory =  Recupere l'information dans les données scappées et la clean
