@@ -2,6 +2,8 @@
 
 import requests
 from bs4 import BeautifulSoup
+import lxml
+from lxml import html
 
 
 def erreurscrapping(urlnonjoignable):
@@ -12,7 +14,8 @@ def erreurscrapping(urlnonjoignable):
 
 
 def recuperation_et_parsing(url_a_scrapper_et_parser):
-    """Recupere la page en argument, verifie le bon fonctionnement, et parse la page. Renvoie la page parsée"""
+    """Recupere la page en argument, verifie le bon fonctionnement, et parse la page avec beautifulsoup.
+    Renvoie la page parsée"""
     scrapped_page = requests.get(url_a_scrapper_et_parser)
 
     if scrapped_page.status_code == 200:
@@ -25,17 +28,30 @@ def recuperation_et_parsing(url_a_scrapper_et_parser):
         erreurscrapping(url_a_scrapper_et_parser)
 
 
+def recuperation_et_parsing_lxml(url_a_scrapper_et_parser):
+    """Recupere la page en argument, verifie le bon fonctionnement, et parse la page avec lxml.
+    Renvoie la page parsée"""
+    scrapped_page = requests.get(url_a_scrapper_et_parser)
+
+    if scrapped_page.status_code == 200:
+        soup = lxml.html.fromstring(scrapped_page.content)
+        return soup
+
+    else:
+        print('un probleme a été rencontré avec ', url_a_scrapper_et_parser, 'Passage au livre suivant. ')
+        print(url_a_scrapper_et_parser, ' est loggé dans le fichier erreur.txt')
+        erreurscrapping(url_a_scrapper_et_parser)
+
+
 def recuperation_ligne_num_upc(scrapped_content):
     """Recupere le numéro UPC de la page precedement scrappée et parsée"""
-    upc_ligne = scrapped_content.find("table", {"class": "table table-striped"}).find(string="UPC").findNext('td')
+    upc_ligne = scrapped_content.find("table", {"class": "table table-striped"}).find(string="UPC").find_next('td')
     return upc_ligne
 
 
 def clean_balises(ligne_a_cleaner, balise_html):
     """Clean la chaine de caractere pour ne garder que le contenu et supprimer les balises html"""
-    contenu = str(ligne_a_cleaner)
-    contenu = contenu.replace('<'+balise_html+'>', '')
-    contenu = contenu.replace('</'+balise_html+'>', '')
+    contenu = str(ligne_a_cleaner).strip(" ></"+balise_html)
     return contenu
 
 
@@ -49,6 +65,11 @@ def clean_renvoi_nombre(ligne_a_cleaner):
     return nombre_a_renvoyer
 
 
+def clean_resultat_xpath(resultat):
+    resultat = str(resultat).strip(" [']")
+    return resultat
+
+
 def recuperation_titre(scrapped_content):
     """Recupere la ligne contenant le titre"""
     titre_ligne = scrapped_content.find("div", {"class": "col-sm-6 product_main"}).find('h1')
@@ -58,22 +79,34 @@ def recuperation_titre(scrapped_content):
 def recuperation_ligne_price_with_tax(scrapped_content):
     """Recupere la ligne contenant le prix avec taxe"""
     price_with_tax = scrapped_content.find("table", {"class": "table table-striped"}).find(string="Price (incl. tax)").\
-        findNext('td')
+        find_next('td')
     return price_with_tax
 
 
 def recuperation_ligne_price_without_tax(scrapped_content):
     """Recupere la ligne contenant le prix sans tax"""
     price_without_tax = scrapped_content.find("table", {"class": "table table-striped"}).find(string="Price (excl. tax)"
-                                                                                              ).findNext('td')
+                                                                                              ).find_next('td')
     return price_without_tax
 
 
 def recuperation_ligne_disponibilite(scrapped_content):
     """Recupere la ligne contenant la disponibilité"""
-    table_disponibility = scrapped_content.find("table", {"class": "table table-striped"}).find(string="Availability").\
-        findNext('td')
-    return table_disponibility
+    disponibility = scrapped_content.find("table", {"class": "table table-striped"}).find(string="Availability").\
+        find_next('td')
+    return disponibility
+
+
+def recuperation_ligne_description(scrapped_content):
+    """ Recuperer la ligne contenant la description du livre """
+    description = scrapped_content.find("div", {"class": "sub-header"}).find_next('p')
+    return description
+
+
+def recuperation_ligne_categorie(scrapped_content):
+    """ recupere la ligne contenant la catégorie du livre"""
+    categorie = scrapped_content.xpath('//div[@class="page_inner"]/ul[@class="breadcrumb"]/li[last()-1]/a/text()')
+    return categorie
 
 
 def main():
@@ -87,29 +120,37 @@ def main():
     # BookURL = recupere l'url de la page d'un livre : Phase 1 : URL prédeterminée
     book_url = 'http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html'
     # BookURLScrapped = Vérifie et Recupere le resultat de scrapping et parsing de la page URLlivre
-    scrapping_page = recuperation_et_parsing(book_url)
+    scrapped_page_bs4 = recuperation_et_parsing(book_url)
+    scrapped_page_lxml = recuperation_et_parsing_lxml(book_url)
     # BookUPC = Recupere l'information dans les données scrappées et la clean
-    book_upc = recuperation_ligne_num_upc(scrapping_page)
+    book_upc = recuperation_ligne_num_upc(scrapped_page_bs4)
     book_upc = clean_balises(book_upc, 'td')
     print(book_upc)
     # BookTitle = Recupere l'information dans les données scappées et la clean
-    book_title = recuperation_titre(scrapping_page)
+    book_title = recuperation_titre(scrapped_page_bs4)
     book_title = clean_balises(book_title, 'h1')
     print(book_title)
     # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
-    book_price_with_tax = recuperation_ligne_price_with_tax(scrapping_page)
+    book_price_with_tax = recuperation_ligne_price_with_tax(scrapped_page_bs4)
     book_price_with_tax = clean_balises(book_price_with_tax, 'td')
     print(book_price_with_tax)
     # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
-    book_price_without_tax = recuperation_ligne_price_without_tax(scrapping_page)
+    book_price_without_tax = recuperation_ligne_price_without_tax(scrapped_page_bs4)
     book_price_without_tax = clean_balises(book_price_without_tax, 'td')
     print(book_price_without_tax)
     # BookNumberAvailable = Recupere l'information dans les données scappées et la clean
-    book_number_available = recuperation_ligne_disponibilite(scrapping_page)
+    book_number_available = recuperation_ligne_disponibilite(scrapped_page_bs4)
     book_number_available = clean_renvoi_nombre(book_number_available)
     print(book_number_available)
     # BookDescription = Recupere l'information dans les données scappées et la clean
+    book_description = recuperation_ligne_description(scrapped_page_bs4)
+    book_description = clean_balises(book_description, 'p')
+    print(book_description)
     # BookCategory =  Recupere l'information dans les données scappées et la clean
+    book_category = recuperation_ligne_categorie(scrapped_page_lxml)
+    book_category = clean_resultat_xpath(book_category)
+    print(book_category)
+
     # BookReviewRating =  Recupere l'information dans les données scappées et la clean
     # BookImageUrl =  Recupere l'information dans les données scappées et la clean
     # Ajouter les informations au CSV
