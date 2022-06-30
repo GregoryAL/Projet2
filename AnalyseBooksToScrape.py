@@ -69,6 +69,24 @@ def clean_resultat_xpath(resultat):
     resultat = str(resultat).strip(" [']")
     return resultat
 
+def clean_resultat_review(resultat):
+    resultat = str(resultat).replace("star-rating ", "")
+    if resultat == "One":
+        resultat = "1"
+    elif resultat == "Two":
+        resultat = "2"
+    elif resultat == "Three":
+        resultat = "3"
+    elif resultat == "Four":
+        resultat = "4"
+    elif resultat == "Five":
+        resultat = "5"
+    elif resultat == "Zero":
+        resultat = "0"
+    else:
+        print("pas de review disponible")
+    return resultat
+
 
 def recuperation_titre(scrapped_content):
     """Recupere la ligne contenant le titre"""
@@ -105,8 +123,23 @@ def recuperation_ligne_description(scrapped_content):
 
 def recuperation_ligne_categorie(scrapped_content):
     """ recupere la ligne contenant la catégorie du livre"""
-    categorie = scrapped_content.xpath('//div[@class="page_inner"]/ul[@class="breadcrumb"]/li[last()-1]/a/text()')
+    categorie = scrapped_content.xpath('//div[@class="page_inner"]'
+                                       '/ul[@class="breadcrumb"]'
+                                       '/li[last()-1]'
+                                       '/a/text()')
     return categorie
+
+
+def recuperation_ligne_rating(scrapped_content):
+    """ recuperer la ligne contenant le rating du livre"""
+    ratings = scrapped_content.xpath('//div[@id="content_inner"]'
+                                     '/article[@class="product_page"]'
+                                     '/div[@class="row"]'
+                                     '/div[@class="col-sm-6 product_main"]'
+                                     '/p[starts-with(@class, "star-rating")]/@class'
+                                     )
+
+    return ratings
 
 
 def main():
@@ -150,8 +183,11 @@ def main():
     book_category = recuperation_ligne_categorie(scrapped_page_lxml)
     book_category = clean_resultat_xpath(book_category)
     print(book_category)
-
     # BookReviewRating =  Recupere l'information dans les données scappées et la clean
+    book_rating = recuperation_ligne_rating(scrapped_page_lxml)
+    book_rating = clean_resultat_xpath(book_rating)
+    book_rating = clean_resultat_review(book_rating)
+    print(book_rating)
     # BookImageUrl =  Recupere l'information dans les données scappées et la clean
     # Ajouter les informations au CSV
 
