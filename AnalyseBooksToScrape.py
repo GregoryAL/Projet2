@@ -176,6 +176,53 @@ def create_csv_jour(nomfichier):
     return csv_du_jour
 
 
+def recuperation_info_livre(url_du_livre):
+    # BookURL = recupere l'url de la page d'un livre : Phase 1 : URL prédeterminée
+    book_url = url_du_livre
+    liste_des_infos = str(book_url)
+    # BookURLScrapped = Vérifie et Recupere le resultat de scrapping et parsing de la page URLlivre
+    scrapped_page_bs4 = recuperation_et_parsing(book_url)
+    scrapped_page_lxml = recuperation_et_parsing_lxml(book_url)
+    # BookUPC = Recupere l'information dans les données scrappées et la clean
+    book_upc = recuperation_ligne_num_upc(scrapped_page_bs4)
+    book_upc = clean_balises(book_upc, 'td')
+    liste_des_infos = liste_des_infos+'²'+str(book_upc)
+    # BookTitle = Recupere l'information dans les données scappées et la clean
+    book_title = recuperation_titre(scrapped_page_bs4)
+    book_title = clean_balises(book_title, 'h1')
+    liste_des_infos = liste_des_infos+'²'+str(book_title)
+    # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
+    book_price_with_tax = recuperation_ligne_price_with_tax(scrapped_page_bs4)
+    book_price_with_tax = clean_balises(book_price_with_tax, 'td')
+    liste_des_infos = liste_des_infos+'²'+str(book_price_with_tax)
+    # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
+    book_price_without_tax = recuperation_ligne_price_without_tax(scrapped_page_bs4)
+    book_price_without_tax = clean_balises(book_price_without_tax, 'td')
+    liste_des_infos = liste_des_infos+'²'+str(book_price_without_tax)
+    # BookNumberAvailable = Recupere l'information dans les données scappées et la clean
+    book_number_available = recuperation_ligne_disponibilite(scrapped_page_bs4)
+    book_number_available = clean_renvoi_nombre(book_number_available)
+    liste_des_infos = liste_des_infos+'²'+str(book_number_available)
+    # BookDescription = Recupere l'information dans les données scappées et la clean
+    book_description = recuperation_ligne_description(scrapped_page_bs4)
+    book_description = clean_balises(book_description, 'p')
+    liste_des_infos = liste_des_infos+'²'+str(book_description)
+    # BookCategory =  Recupere l'information dans les données scappées et la clean
+    book_category = recuperation_ligne_categorie(scrapped_page_lxml)
+    book_category = clean_resultat_xpath(book_category)
+    liste_des_infos = liste_des_infos+'²'+str(book_category)
+    # BookReviewRating =  Recupere l'information dans les données scappées et la clean
+    book_rating = recuperation_ligne_rating(scrapped_page_lxml)
+    book_rating = clean_resultat_xpath(book_rating)
+    book_rating = clean_resultat_review(book_rating)
+    liste_des_infos = liste_des_infos+'²'+str(book_rating)
+    # BookImageUrl =  Recupere l'information dans les données scappées et la clean
+    book_pic_url = recuperation_ligne_pic_url(scrapped_page_lxml)
+    book_pic_url = clean_resultat_xpath(book_pic_url)
+    book_pic_url = clean_resultat_pic_url(book_pic_url)
+    liste_des_infos = liste_des_infos+'²'+str(book_pic_url)
+    return liste_des_infos
+
 def main():
     """Point d'entrée du programme de scrapping"""
     # Initialisation d'un fichier erreur
@@ -184,45 +231,14 @@ def main():
     # Creer un csv avec les entetes indiquées à la date du jour
     nom_fichier_csv = generation_nom_csv()
     dico_csv = create_csv_jour(nom_fichier_csv)
-    # BookURL = recupere l'url de la page d'un livre : Phase 1 : URL prédeterminée
-    book_url = 'http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html'
-    # BookURLScrapped = Vérifie et Recupere le resultat de scrapping et parsing de la page URLlivre
-    scrapped_page_bs4 = recuperation_et_parsing(book_url)
-    scrapped_page_lxml = recuperation_et_parsing_lxml(book_url)
-    # BookUPC = Recupere l'information dans les données scrappées et la clean
-    book_upc = recuperation_ligne_num_upc(scrapped_page_bs4)
-    book_upc = clean_balises(book_upc, 'td')
-    # BookTitle = Recupere l'information dans les données scappées et la clean
-    book_title = recuperation_titre(scrapped_page_bs4)
-    book_title = clean_balises(book_title, 'h1')
-    # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
-    book_price_with_tax = recuperation_ligne_price_with_tax(scrapped_page_bs4)
-    book_price_with_tax = clean_balises(book_price_with_tax, 'td')
-    # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
-    book_price_without_tax = recuperation_ligne_price_without_tax(scrapped_page_bs4)
-    book_price_without_tax = clean_balises(book_price_without_tax, 'td')
-    # BookNumberAvailable = Recupere l'information dans les données scappées et la clean
-    book_number_available = recuperation_ligne_disponibilite(scrapped_page_bs4)
-    book_number_available = clean_renvoi_nombre(book_number_available)
-    # BookDescription = Recupere l'information dans les données scappées et la clean
-    book_description = recuperation_ligne_description(scrapped_page_bs4)
-    book_description = clean_balises(book_description, 'p')
-    # BookCategory =  Recupere l'information dans les données scappées et la clean
-    book_category = recuperation_ligne_categorie(scrapped_page_lxml)
-    book_category = clean_resultat_xpath(book_category)
-    # BookReviewRating =  Recupere l'information dans les données scappées et la clean
-    book_rating = recuperation_ligne_rating(scrapped_page_lxml)
-    book_rating = clean_resultat_xpath(book_rating)
-    book_rating = clean_resultat_review(book_rating)
-    # BookImageUrl =  Recupere l'information dans les données scappées et la clean
-    book_pic_url = recuperation_ligne_pic_url(scrapped_page_lxml)
-    book_pic_url = clean_resultat_xpath(book_pic_url)
-    book_pic_url = clean_resultat_pic_url(book_pic_url)
+    # Lance fonction recuperation d'information et ajout dans le csv a partir d une url
+    liste_info = recuperation_info_livre('http://books.toscrape.com/catalogue/a-summer-in-europe_458/index.html')
     # Ajouter les informations au CSV
     with open(nom_fichier_csv, 'a', newline='') as dico_csv:
         writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
-        writercsv.writerow([book_url, book_upc, book_title, book_price_with_tax, book_price_without_tax,
-                            book_number_available, book_description, book_category, book_rating, book_pic_url])
+        writercsv.writerow([liste_info])
+
+
 
 
 if __name__ == "__main__":
