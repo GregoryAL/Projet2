@@ -1,3 +1,5 @@
 .env
 .idea
 .donnees
+/donnees/erreur.txt
+/donnees/informations_bookstoscrape_du_20220701.csv
