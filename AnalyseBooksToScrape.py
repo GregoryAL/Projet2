@@ -69,6 +69,7 @@ def clean_resultat_xpath(resultat):
     resultat = str(resultat).strip(" [']")
     return resultat
 
+
 def clean_resultat_review(resultat):
     resultat = str(resultat).replace("star-rating ", "")
     if resultat == "One":
@@ -85,6 +86,11 @@ def clean_resultat_review(resultat):
         resultat = "0"
     else:
         print("pas de review disponible")
+    return resultat
+
+
+def clean_resultat_pic_url(resultat):
+    resultat = str(resultat).replace('../..', 'http://books.toscrape.com')
     return resultat
 
 
@@ -132,14 +138,23 @@ def recuperation_ligne_categorie(scrapped_content):
 
 def recuperation_ligne_rating(scrapped_content):
     """ recuperer la ligne contenant le rating du livre"""
-    ratings = scrapped_content.xpath('//div[@id="content_inner"]'
-                                     '/article[@class="product_page"]'
+    ratings = scrapped_content.xpath('//article[@class="product_page"]'
                                      '/div[@class="row"]'
                                      '/div[@class="col-sm-6 product_main"]'
                                      '/p[starts-with(@class, "star-rating")]/@class'
                                      )
-
     return ratings
+
+
+def recuperation_ligne_pic_url(scrapped_content):
+    """ recuperer la ligne contenant l url de la photo du livre """
+    pics_url = scrapped_content.xpath('//article[@class="product_page"]'
+                                      '/div[@class="row"]'
+                                      '/div[@class="col-sm-6"]'
+                                      '/div[@id="product_gallery"]'
+                                      '//img/@src'
+                                      )
+    return pics_url
 
 
 def main():
@@ -189,6 +204,10 @@ def main():
     book_rating = clean_resultat_review(book_rating)
     print(book_rating)
     # BookImageUrl =  Recupere l'information dans les données scappées et la clean
+    book_pic_url = recuperation_ligne_pic_url(scrapped_page_lxml)
+    book_pic_url = clean_resultat_xpath(book_pic_url)
+    book_pic_url = clean_resultat_pic_url(book_pic_url)
+    print(book_pic_url)
     # Ajouter les informations au CSV
 
 
