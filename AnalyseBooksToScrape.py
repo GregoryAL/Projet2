@@ -4,13 +4,16 @@ import requests
 from bs4 import BeautifulSoup
 import lxml
 from lxml import html
+import csv
+import datetime
 
 
 def erreurscrapping(urlnonjoignable):
     """Ajoute l url de la page en erreur au fichier erreur.txt"""
-    fichiererreur = open('erreur.txt', "a")
+    fichiererreur = open('donnees/erreur.txt', "a")
     fichiererreur.write(urlnonjoignable + ', ')
     fichiererreur.close()
+    exit()
 
 
 def recuperation_et_parsing(url_a_scrapper_et_parser):
@@ -157,14 +160,30 @@ def recuperation_ligne_pic_url(scrapped_content):
     return pics_url
 
 
+def generation_nom_csv():
+    date_du_jour = datetime.datetime.now()
+    date_du_jour = date_du_jour.strftime('%Y%m%d')
+    nomfichier = "donnees/informations_bookstoscrape_du_" + date_du_jour + ".csv"
+    return nomfichier
+
+
+def create_csv_jour(nomfichier):
+    with open(nomfichier, 'w', newline='') as csv_du_jour:
+        writer = csv.writer(csv_du_jour, delimiter='²', quotechar='|')
+        writer.writerow(['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax',
+                         'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating',
+                         'image_url'])
+    return csv_du_jour
+
+
 def main():
     """Point d'entrée du programme de scrapping"""
     # Initialisation d'un fichier erreur
-    fichier_d_erreur = open('erreur.txt', "w")
+    fichier_d_erreur = open('donnees/erreur.txt', "w")
     fichier_d_erreur.close()
-
-    # Creer un csv avec les entetes indiquées
-
+    # Creer un csv avec les entetes indiquées à la date du jour
+    nom_fichier_csv = generation_nom_csv()
+    dico_csv = create_csv_jour(nom_fichier_csv)
     # BookURL = recupere l'url de la page d'un livre : Phase 1 : URL prédeterminée
     book_url = 'http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html'
     # BookURLScrapped = Vérifie et Recupere le resultat de scrapping et parsing de la page URLlivre
@@ -173,42 +192,37 @@ def main():
     # BookUPC = Recupere l'information dans les données scrappées et la clean
     book_upc = recuperation_ligne_num_upc(scrapped_page_bs4)
     book_upc = clean_balises(book_upc, 'td')
-    print(book_upc)
     # BookTitle = Recupere l'information dans les données scappées et la clean
     book_title = recuperation_titre(scrapped_page_bs4)
     book_title = clean_balises(book_title, 'h1')
-    print(book_title)
     # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
     book_price_with_tax = recuperation_ligne_price_with_tax(scrapped_page_bs4)
     book_price_with_tax = clean_balises(book_price_with_tax, 'td')
-    print(book_price_with_tax)
     # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
     book_price_without_tax = recuperation_ligne_price_without_tax(scrapped_page_bs4)
     book_price_without_tax = clean_balises(book_price_without_tax, 'td')
-    print(book_price_without_tax)
     # BookNumberAvailable = Recupere l'information dans les données scappées et la clean
     book_number_available = recuperation_ligne_disponibilite(scrapped_page_bs4)
     book_number_available = clean_renvoi_nombre(book_number_available)
-    print(book_number_available)
     # BookDescription = Recupere l'information dans les données scappées et la clean
     book_description = recuperation_ligne_description(scrapped_page_bs4)
     book_description = clean_balises(book_description, 'p')
-    print(book_description)
     # BookCategory =  Recupere l'information dans les données scappées et la clean
     book_category = recuperation_ligne_categorie(scrapped_page_lxml)
     book_category = clean_resultat_xpath(book_category)
-    print(book_category)
     # BookReviewRating =  Recupere l'information dans les données scappées et la clean
     book_rating = recuperation_ligne_rating(scrapped_page_lxml)
     book_rating = clean_resultat_xpath(book_rating)
     book_rating = clean_resultat_review(book_rating)
-    print(book_rating)
     # BookImageUrl =  Recupere l'information dans les données scappées et la clean
     book_pic_url = recuperation_ligne_pic_url(scrapped_page_lxml)
     book_pic_url = clean_resultat_xpath(book_pic_url)
     book_pic_url = clean_resultat_pic_url(book_pic_url)
-    print(book_pic_url)
     # Ajouter les informations au CSV
+    with open(nom_fichier_csv, 'a', newline='') as dico_csv:
+        writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
+        writercsv.writerow([book_url, book_upc, book_title, book_price_with_tax, book_price_without_tax,
+                            book_number_available, book_description, book_category, book_rating, book_pic_url])
 
 
 if __name__ == "__main__":
