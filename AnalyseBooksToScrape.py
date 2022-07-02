@@ -285,17 +285,13 @@ def main():
         i_url = liste_url_categorie[i]
         books_url_list_for_category = books_url_list_for_category + recuperation_books_url_from_page(i_url)
 
-    # pour toutes les url recuperees :
-    for i in range(len(books_url_list_for_category)):
-        print(books_url_list_for_category[i])
-
-
     # Lance fonction recuperation d'information et ajout dans le csv a partir d une url
-    liste_info = recuperation_info_livre('http://books.toscrape.com/catalogue/a-summer-in-europe_458/index.html')
-    # Ajouter les informations au CSV
-    with open(nom_fichier_csv, 'a', newline='') as dico_csv:
-        writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
-        writercsv.writerow([liste_info])
+    for i in range(len(books_url_list_for_category)):
+        liste_info = recuperation_info_livre(books_url_list_for_category[i])
+        # Ajouter les informations au CSV
+        with open(nom_fichier_csv, 'a', newline='') as dico_csv:
+            writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
+            writercsv.writerow([liste_info])
 
 
 if __name__ == "__main__":
