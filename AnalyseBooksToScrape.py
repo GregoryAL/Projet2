@@ -171,7 +171,7 @@ def generation_nom_csv():
 
 def create_csv_jour(nomfichier):
     """ cree un fichier csv qui contient la date du jour et ajoute les entetes """
-    with open(nomfichier, 'w', newline='') as csv_du_jour:
+    with open(nomfichier, 'w', newline='', encoding='utf-8-sig') as csv_du_jour:
         writer = csv.writer(csv_du_jour, delimiter='²', quotechar='|')
         writer.writerow(['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax',
                          'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating',
@@ -301,7 +301,7 @@ def main():
             for k in range(len(books_url_list_for_category)):
                 liste_info = recuperation_info_livre(books_url_list_for_category[k])
                 # Ajouter les informations au CSV
-                with open(nom_fichier_csv, 'a', newline='') as dico_csv:
+                with open(nom_fichier_csv, 'a', newline='', encoding='utf-8') as dico_csv:
                     writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
                     writercsv.writerow([liste_info])
 
