@@ -100,6 +100,7 @@ def clean_resultat_pic_url(resultat):
 def recuperation_titre(scrapped_content):
     """Recupere la ligne contenant le titre"""
     titre_ligne = scrapped_content.find("div", {"class": "col-sm-6 product_main"}).find('h1')
+    print(titre_ligne)
     return titre_ligne
 
 
@@ -126,8 +127,15 @@ def recuperation_ligne_disponibilite(scrapped_content):
 
 def recuperation_ligne_description(scrapped_content):
     """ Recuperer la ligne contenant la description du livre """
-    description = scrapped_content.find("div", {"class": "sub-header"}).find_next('p')
-
+    test_description = scrapped_content.xpath('//article[@class="product_page"]'
+                                              '/div[@id="product_description"]'
+                                              '/h2/text()')
+    test_description = clean_resultat_xpath(test_description)
+    if test_description == "Product Description":
+        description = scrapped_content.xpath('//article[@class="product_page"]'
+                                             '/p/text()')
+    else:
+        description = "No Description Available"
     return description
 
 
@@ -207,8 +215,8 @@ def recuperation_info_livre(url_du_livre):
     book_number_available = clean_renvoi_nombre(book_number_available)
     liste_des_infos = liste_des_infos+'²'+str(book_number_available)
     # BookDescription = Recupere l'information dans les données scappées et la clean
-    book_description = recuperation_ligne_description(scrapped_page_bs4)
-    book_description = clean_balises(book_description, 'p')
+    book_description = recuperation_ligne_description(scrapped_page_lxml)
+    book_description = clean_resultat_xpath(book_description)
     liste_des_infos = liste_des_infos+'²'+str(book_description)
     # BookCategory =  Recupere l'information dans les données scappées et la clean
     book_category = recuperation_ligne_categorie(scrapped_page_lxml)
@@ -260,6 +268,7 @@ def recuperation_books_url_from_page(category_url_page):
 
 
 def search_all_categories_url(main_parsed):
+    """ listes les urls de toutes les catégories"""
     list_of_categories_url = main_parsed.xpath('//div[@class="side_categories"]'
                                                '/ul[@class="nav nav-list"]/li/ul/li/a/@href'
                                                )
@@ -269,6 +278,23 @@ def search_all_categories_url(main_parsed):
         all_categories_url.append("http://books.toscrape.com/"+str(list_of_categories_url[i]))
     return all_categories_url
 
+
+"""def main():
+    # Pour test
+    # Initialisation d'un fichier erreur
+    fichier_d_erreur = open('donnees/erreur.txt', "w")
+    fichier_d_erreur.close()
+    # Creer un csv avec les entetes indiquées à la date du jour
+    nom_fichier_csv = generation_nom_csv()
+    create_csv_jour(nom_fichier_csv)
+    liste_info = recuperation_info_livre('http://books.toscrape.com/catalogue/alice-in-wonderland-alices-adventures-in-wonderland-1_5/index.html')
+    #liste_info = recuperation_info_livre(
+    #    'http://books.toscrape.com/catalogue/in-the-woods-dublin-murder-squad-1_433/index.html')
+    # Ajouter les informations au CSV
+    with open(nom_fichier_csv, 'a', newline='', encoding='utf-8') as dico_csv:
+        writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
+        writercsv.writerow([liste_info])
+    print(liste_info)"""
 
 def main():
     """Point d'entrée du programme de scrapping"""
