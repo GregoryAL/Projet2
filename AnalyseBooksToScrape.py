@@ -100,7 +100,6 @@ def clean_resultat_pic_url(resultat):
 def recuperation_titre(scrapped_content):
     """Recupere la ligne contenant le titre"""
     titre_ligne = scrapped_content.find("div", {"class": "col-sm-6 product_main"}).find('h1')
-    print(titre_ligne)
     return titre_ligne
 
 
@@ -287,7 +286,8 @@ def search_all_categories_url(main_parsed):
     # Creer un csv avec les entetes indiquées à la date du jour
     nom_fichier_csv = generation_nom_csv()
     create_csv_jour(nom_fichier_csv)
-    liste_info = recuperation_info_livre('http://books.toscrape.com/catalogue/alice-in-wonderland-alices-adventures-in-wonderland-1_5/index.html')
+    liste_info = recuperation_info_livre('http://books.toscrape.com/catalogue/alice-in-wonderland-alices-adventures-in-
+    wonderland-1_5/index.html')
     #liste_info = recuperation_info_livre(
     #    'http://books.toscrape.com/catalogue/in-the-woods-dublin-murder-squad-1_433/index.html')
     # Ajouter les informations au CSV
@@ -295,6 +295,7 @@ def search_all_categories_url(main_parsed):
         writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
         writercsv.writerow([liste_info])
     print(liste_info)"""
+
 
 def main():
     """Point d'entrée du programme de scrapping"""
@@ -319,10 +320,9 @@ def main():
         # fonction listant url des pages de catégorie
         liste_url_categorie = lister_url_categorie(premiere_page_categorie_url, int(nombre_de_page))
         # Lance fonction de recuperation des url des livres des pages d'une catégories dans une liste
-        books_url_list_for_category = []
         for j in range(len(liste_url_categorie)):
             i_url = liste_url_categorie[j]
-            books_url_list_for_category = books_url_list_for_category + recuperation_books_url_from_page(i_url)
+            books_url_list_for_category = recuperation_books_url_from_page(i_url)
             # Lance fonction recuperation d'information et ajout dans le csv a partir d une url
             for k in range(len(books_url_list_for_category)):
                 liste_info = recuperation_info_livre(books_url_list_for_category[k])
