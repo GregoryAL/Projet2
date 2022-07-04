@@ -6,6 +6,7 @@ import lxml
 from lxml import html
 import csv
 import datetime
+import pathlib
 
 
 def erreurscrapping(urlnonjoignable):
@@ -43,129 +44,16 @@ def recuperation_et_parsing_lxml(url_a_scrapper_et_parser):
         erreurscrapping(url_a_scrapper_et_parser)
 
 
-def recuperation_ligne_num_upc(scrapped_content):
-    """Recupere le numéro UPC de la page precedement scrappée et parsée"""
-    upc_ligne = scrapped_content.find("table", {"class": "table table-striped"}).find(string="UPC").find_next('td')
-    return upc_ligne
-
-
 def clean_balises(ligne_a_cleaner, balise_html):
     """Clean la chaine de caractere pour ne garder que le contenu et supprimer les balises html"""
     contenu = str(ligne_a_cleaner).replace('<'+balise_html+'>', '').replace('</'+balise_html+'>', '')
     return contenu
 
 
-def clean_renvoi_nombre(ligne_a_cleaner):
-    """Clean la chaine de caractere pour ne garder que les nombres"""
-    contenu = str(ligne_a_cleaner)
-    nombre_a_renvoyer = ''
-    for i in range(len(contenu)):
-        if contenu[i].isdigit():
-            nombre_a_renvoyer = nombre_a_renvoyer + contenu[i]
-    return nombre_a_renvoyer
-
-
 def clean_resultat_xpath(resultat):
     """ renvoie la valeur recuperée avec xpath en supprimant les crochets et ' """
     resultat = str(resultat).strip(" [']")
     return resultat
-
-
-def clean_resultat_review(resultat):
-    """ supprime la partie de la chaine inutile et renvoi la valeur des avis """
-    resultat = str(resultat).replace("star-rating ", "")
-    if resultat == "One":
-        resultat = "1"
-    elif resultat == "Two":
-        resultat = "2"
-    elif resultat == "Three":
-        resultat = "3"
-    elif resultat == "Four":
-        resultat = "4"
-    elif resultat == "Five":
-        resultat = "5"
-    elif resultat == "Zero":
-        resultat = "0"
-    else:
-        print("pas de review disponible")
-    return resultat
-
-
-def clean_resultat_pic_url(resultat):
-    """ renvoi l url de la photo a partir de l url relative """
-    resultat = str(resultat).replace('../..', 'http://books.toscrape.com')
-    return resultat
-
-
-def recuperation_titre(scrapped_content):
-    """Recupere la ligne contenant le titre"""
-    titre_ligne = scrapped_content.find("div", {"class": "col-sm-6 product_main"}).find('h1')
-    return titre_ligne
-
-
-def recuperation_ligne_price_with_tax(scrapped_content):
-    """Recupere la ligne contenant le prix avec taxe"""
-    price_with_tax = scrapped_content.find("table", {"class": "table table-striped"}).find(string="Price (incl. tax)").\
-        find_next('td')
-    return price_with_tax
-
-
-def recuperation_ligne_price_without_tax(scrapped_content):
-    """Recupere la ligne contenant le prix sans tax"""
-    price_without_tax = scrapped_content.find("table", {"class": "table table-striped"}).find(string="Price (excl. tax)"
-                                                                                              ).find_next('td')
-    return price_without_tax
-
-
-def recuperation_ligne_disponibilite(scrapped_content):
-    """Recupere la ligne contenant la disponibilité"""
-    disponibility = scrapped_content.find("table", {"class": "table table-striped"}).find(string="Availability").\
-        find_next('td')
-    return disponibility
-
-
-def recuperation_ligne_description(scrapped_content):
-    """ Recuperer la ligne contenant la description du livre """
-    test_description = scrapped_content.xpath('//article[@class="product_page"]'
-                                              '/div[@id="product_description"]'
-                                              '/h2/text()')
-    test_description = clean_resultat_xpath(test_description)
-    if test_description == "Product Description":
-        description = scrapped_content.xpath('//article[@class="product_page"]'
-                                             '/p/text()')
-    else:
-        description = "No Description Available"
-    return description
-
-
-def recuperation_ligne_categorie(scrapped_content):
-    """ recupere la ligne contenant la catégorie du livre"""
-    categorie = scrapped_content.xpath('//div[@class="page_inner"]'
-                                       '/ul[@class="breadcrumb"]'
-                                       '/li[last()-1]'
-                                       '/a/text()')
-    return categorie
-
-
-def recuperation_ligne_rating(scrapped_content):
-    """ recuperer la ligne contenant le rating du livre"""
-    ratings = scrapped_content.xpath('//article[@class="product_page"]'
-                                     '/div[@class="row"]'
-                                     '/div[@class="col-sm-6 product_main"]'
-                                     '/p[starts-with(@class, "star-rating")]/@class'
-                                     )
-    return ratings
-
-
-def recuperation_ligne_pic_url(scrapped_content):
-    """ recuperer la ligne contenant l url de la photo du livre """
-    pics_url = scrapped_content.xpath('//article[@class="product_page"]'
-                                      '/div[@class="row"]'
-                                      '/div[@class="col-sm-6"]'
-                                      '/div[@id="product_gallery"]'
-                                      '//img/@src'
-                                      )
-    return pics_url
 
 
 def generation_nom_csv():
@@ -194,42 +82,86 @@ def recuperation_info_livre(url_du_livre):
     scrapped_page_bs4 = recuperation_et_parsing(book_url)
     scrapped_page_lxml = recuperation_et_parsing_lxml(book_url)
     # BookUPC = Recupere l'information dans les données scrappées et la clean
-    book_upc = recuperation_ligne_num_upc(scrapped_page_bs4)
+    book_upc = scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="UPC").find_next('td')
     book_upc = clean_balises(book_upc, 'td')
     liste_des_infos = liste_des_infos+'²'+str(book_upc)
     # BookTitle = Recupere l'information dans les données scappées et la clean
-    book_title = recuperation_titre(scrapped_page_bs4)
+    book_title = scrapped_page_bs4.find("div", {"class": "col-sm-6 product_main"}).find('h1')
     book_title = clean_balises(book_title, 'h1')
     liste_des_infos = liste_des_infos+'²'+str(book_title)
     # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
-    book_price_with_tax = recuperation_ligne_price_with_tax(scrapped_page_bs4)
-    book_price_with_tax = clean_balises(book_price_with_tax, 'td')
+    book_price_with_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
+        find(string="Price (incl. tax)").find_next('td')
+    book_price_with_tax = clean_balises(book_price_with_tax, 'td').strip('£')
+    print(book_price_with_tax)
     liste_des_infos = liste_des_infos+'²'+str(book_price_with_tax)
     # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
-    book_price_without_tax = recuperation_ligne_price_without_tax(scrapped_page_bs4)
-    book_price_without_tax = clean_balises(book_price_without_tax, 'td')
+    book_price_without_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
+        find(string="Price (excl. tax)").find_next('td')
+    book_price_without_tax = clean_balises(book_price_without_tax, 'td').strip('£')
     liste_des_infos = liste_des_infos+'²'+str(book_price_without_tax)
     # BookNumberAvailable = Recupere l'information dans les données scappées et la clean
-    book_number_available = recuperation_ligne_disponibilite(scrapped_page_bs4)
-    book_number_available = clean_renvoi_nombre(book_number_available)
+    book_number_available = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
+        find(string="Availability").find_next('td')
+    book_number_available = str(book_number_available)
+    nombre_a_renvoyer = ''
+    for i in range(len(book_number_available)):
+        if book_number_available[i].isdigit():
+            nombre_a_renvoyer = nombre_a_renvoyer + book_number_available[i]
+    book_number_available = nombre_a_renvoyer
     liste_des_infos = liste_des_infos+'²'+str(book_number_available)
     # BookDescription = Recupere l'information dans les données scappées et la clean
-    book_description = recuperation_ligne_description(scrapped_page_lxml)
-    book_description = clean_resultat_xpath(book_description)
+    # Verifie également qu'une description est disponible
+    test_description = scrapped_page_lxml.xpath('//article[@class="product_page"]'
+                                                '/div[@id="product_description"]'
+                                                '/h2/text()')
+    test_description = clean_resultat_xpath(test_description)
+    if test_description == "Product Description":
+        book_description = scrapped_page_lxml.xpath('//article[@class="product_page"]'
+                                                    '/p/text()')
+        book_description = clean_resultat_xpath(book_description)
+    else:
+        book_description = "No Description Available"
     liste_des_infos = liste_des_infos+'²'+str(book_description)
     # BookCategory =  Recupere l'information dans les données scappées et la clean
-    book_category = recuperation_ligne_categorie(scrapped_page_lxml)
+    book_category = scrapped_page_lxml.xpath('//div[@class="page_inner"]'
+                                             '/ul[@class="breadcrumb"]'
+                                             '/li[last()-1]'
+                                             '/a/text()')
     book_category = clean_resultat_xpath(book_category)
     liste_des_infos = liste_des_infos+'²'+str(book_category)
     # BookReviewRating =  Recupere l'information dans les données scappées et la clean
-    book_rating = recuperation_ligne_rating(scrapped_page_lxml)
+    book_rating = scrapped_page_lxml.xpath('//article[@class="product_page"]'
+                                           '/div[@class="row"]'
+                                           '/div[@class="col-sm-6 product_main"]'
+                                           '/p[starts-with(@class, "star-rating")]/@class'
+                                           )
     book_rating = clean_resultat_xpath(book_rating)
-    book_rating = clean_resultat_review(book_rating)
+    book_rating = str(book_rating).replace("star-rating ", "")
+    if book_rating == "One":
+        book_rating = "1"
+    elif book_rating == "Two":
+        book_rating = "2"
+    elif book_rating == "Three":
+        book_rating = "3"
+    elif book_rating == "Four":
+        book_rating = "4"
+    elif book_rating == "Five":
+        book_rating = "5"
+    elif book_rating == "Zero":
+        book_rating = "0"
+    else:
+        book_rating = "None"
     liste_des_infos = liste_des_infos+'²'+str(book_rating)
     # BookImageUrl =  Recupere l'information dans les données scappées et la clean
-    book_pic_url = recuperation_ligne_pic_url(scrapped_page_lxml)
+    book_pic_url = scrapped_page_lxml.xpath('//article[@class="product_page"]'
+                                            '/div[@class="row"]'
+                                            '/div[@class="col-sm-6"]'
+                                            '/div[@id="product_gallery"]'
+                                            '//img/@src'
+                                            )
     book_pic_url = clean_resultat_xpath(book_pic_url)
-    book_pic_url = clean_resultat_pic_url(book_pic_url)
+    book_pic_url = str(book_pic_url).replace('../..', 'http://books.toscrape.com')
     liste_des_infos = liste_des_infos+'²'+str(book_pic_url)
     return liste_des_infos
 
@@ -299,17 +231,35 @@ def search_all_categories_url(main_parsed):
 
 def main():
     """Point d'entrée du programme de scrapping"""
+
     # Initialisation d'un fichier erreur
     fichier_d_erreur = open('donnees/erreur.txt', "w")
     fichier_d_erreur.close()
-    # Creer un csv avec les entetes indiquées à la date du jour
-    nom_fichier_csv = generation_nom_csv()
-    create_csv_jour(nom_fichier_csv)
     # Lance recuperation et parsing des données de la page d'acceuil de books.tosrape
     site_url = 'http://books.toscrape.com/'
     site_scrapped_lxml = recuperation_et_parsing_lxml(site_url)
     # Recupere toutes les catégories
     categories_url_whole_site = search_all_categories_url(site_scrapped_lxml)
+    categories_dictionnaire = {}
+    urls_of_categories = site_scrapped_lxml.xpath('//div[@class="side_categories"]'
+                                               '/ul[@class="nav nav-list"]/li/ul/li/a/@href'
+                                               )
+    print(urls_of_categories)
+    name_of_categories = []
+    name_of_categories_brut = site_scrapped_lxml.xpath('//div[@class="side_categories"]'
+                                               '/ul[@class="nav nav-list"]/li/ul/li/a/text()'
+                                               )
+    for each_name in name_of_categories_brut:
+        name_of_categories.append(each_name.replace(" ","").replace("\n", ""))
+    print(name_of_categories)
+    print(len(urls_of_categories))
+    for each_url in urls_of_categories:
+        index_list = urls_of_categories.index(each_url)
+        categories_dictionnaire[name_of_categories[index_list]] = each_url
+    print(categories_dictionnaire)
+    # Creer un csv avec les entetes indiquées à la date du jour
+    nom_fichier_csv = generation_nom_csv()
+    create_csv_jour(nom_fichier_csv)
     # Applique le scrapping de tous les livres d'une catégorie à toutes les catégories
     for i in range(len(categories_url_whole_site)):
         # Lance recuperation et parsing des données d'une catégorie
