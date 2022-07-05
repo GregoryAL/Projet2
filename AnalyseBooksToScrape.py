@@ -201,19 +201,31 @@ def recuperation_info_livre(url_du_livre, categorie_livre):
         book_rating_int = correspondance_str_int[book_rating]
         liste_infos_format_liste.append(book_rating_int)
     # BookImageUrl =  Recupere l'information dans les données scrappées et la clean
-    book_pic_url = scrapped_page_lxml.xpath('//article[@class="product_page"]'
-                                            '/div[@class="row"]'
-                                            '/div[@class="col-sm-6"]'
-                                            '/div[@id="product_gallery"]'
-                                            '//img/@src'
-                                            )
-    book_pic_url = clean_resultat_xpath(book_pic_url)
-    book_pic_url = str(book_pic_url).replace('../..', 'http://books.toscrape.com')
-    liste_infos_format_liste.append(book_pic_url)
+    if (scrapped_page_lxml.xpath('//article[@class="product_page"]'
+                                 '/div[@class="row"]'
+                                 '/div[@class="col-sm-6"]'
+                                 '/div[@id="product_gallery"]'
+                                 '//img/@src'
+                                 )) is None:
+        fichiererreur = open('donnees/erreur.txt', "a")
+        fichiererreur.write("Il n'y a pas de photo disponible pour " + str(book_url) + "\n")
+        fichiererreur.close()
+        liste_infos_format_liste.append("Pas de photo disponible")
+    else:
+        book_pic_url = scrapped_page_lxml.xpath('//article[@class="product_page"]'
+                                                '/div[@class="row"]'
+                                                '/div[@class="col-sm-6"]'
+                                                '/div[@id="product_gallery"]'
+                                                '//img/@src'
+                                                )
+        book_pic_url = clean_resultat_xpath(book_pic_url)
+        book_pic_url = str(book_pic_url).replace('../..', 'http://books.toscrape.com')
+        liste_infos_format_liste.append(book_pic_url)
+    # Retourne la liste des informations
     return liste_infos_format_liste
 
 
-def renvoi_nombre_de_page_par_categorie(url_page):
+def renvoi_liste_url__livre_pour_toutes_pages_categorie(url_page):
     """" recherche le nombre de page et renvoie le nombre """
     nombre_de_page = 1
     scrapped_page_categorie = recuperation_et_parsing_lxml(url_page)
@@ -289,7 +301,7 @@ for categorie_name in categories_dictionnaire:
     nom_fichier_csv = generation_nom_csv(categorie_name)
     create_csv_jour(nom_fichier_csv, categorie_path)
     # Lance fonction de recherche de la liste des urls d une categorie
-    liste_url_categorie = renvoi_nombre_de_page_par_categorie(categories_dictionnaire[categorie_name])
+    liste_url_categorie = renvoi_liste_url__livre_pour_toutes_pages_categorie(categories_dictionnaire[categorie_name])
     # Lance fonction de recuperation des url des livres des pages d'une catégories dans une liste
     for liste_url in liste_url_categorie:
         books_url_list_for_category = recuperation_books_url_from_page(liste_url)
