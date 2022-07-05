@@ -91,7 +91,7 @@ def create_csv_jour(nomfichier, chemin):
                          'image_url'])
 
 
-def recuperation_info_livre(url_du_livre):
+def recuperation_info_livre(url_du_livre, categorie_livre):
     """recupere les differentes infos necessaires et les renvoi """
     # BookURL = recupere l'url de la page d'un livre : Phase 1 : URL prédeterminée
     book_url = url_du_livre
@@ -178,35 +178,28 @@ def recuperation_info_livre(url_du_livre):
         book_description = "No Description Available"
     liste_infos_format_liste.append(book_description)
     # BookCategory =  Recupere l'information dans les données scrappées et la clean
-    book_category = scrapped_page_lxml.xpath('//div[@class="page_inner"]'
-                                             '/ul[@class="breadcrumb"]'
-                                             '/li[last()-1]'
-                                             '/a/text()')
-    book_category = clean_resultat_xpath(book_category)
-    liste_infos_format_liste.append(book_category)
+    liste_infos_format_liste.append(categorie_livre)
     # BookReviewRating =  Recupere l'information dans les données scrappées et la clean
-    book_rating = scrapped_page_lxml.xpath('//article[@class="product_page"]'
-                                           '/div[@class="row"]'
-                                           '/div[@class="col-sm-6 product_main"]'
-                                           '/p[starts-with(@class, "star-rating")]/@class'
-                                           )
-    book_rating = clean_resultat_xpath(book_rating)
-    book_rating = str(book_rating).replace("star-rating ", "")
-    if book_rating == "One":
-        book_rating = "1"
-    elif book_rating == "Two":
-        book_rating = "2"
-    elif book_rating == "Three":
-        book_rating = "3"
-    elif book_rating == "Four":
-        book_rating = "4"
-    elif book_rating == "Five":
-        book_rating = "5"
-    elif book_rating == "Zero":
-        book_rating = "0"
+    if (scrapped_page_lxml.xpath('//article[@class="product_page"]'
+                                 '/div[@class="row"]'
+                                 '/div[@class="col-sm-6 product_main"]'
+                                 '/p[starts-with(@class, "star-rating")]/@class'
+                                 )) is None:
+        fichiererreur = open('donnees/erreur.txt', "a")
+        fichiererreur.write("Il n'y a pas de moyenne de review renseigné pour " + str(book_url) + "\n")
+        fichiererreur.close()
+        liste_infos_format_liste.append("")
     else:
-        book_rating = "None"
-    liste_infos_format_liste.append(book_rating)
+        book_rating = scrapped_page_lxml.xpath('//article[@class="product_page"]'
+                                               '/div[@class="row"]'
+                                               '/div[@class="col-sm-6 product_main"]'
+                                               '/p[starts-with(@class, "star-rating")]/@class'
+                                               )
+        book_rating = clean_resultat_xpath(book_rating)
+        book_rating = str(book_rating).replace("star-rating ", "")
+        correspondance_str_int = {"One": "1", "Two": "2", "Three": "3", "Four": "4", "Five": "5", "Zero": "0"}
+        book_rating_int = correspondance_str_int[book_rating]
+        liste_infos_format_liste.append(book_rating_int)
     # BookImageUrl =  Recupere l'information dans les données scrappées et la clean
     book_pic_url = scrapped_page_lxml.xpath('//article[@class="product_page"]'
                                             '/div[@class="row"]'
@@ -302,7 +295,7 @@ for categorie_name in categories_dictionnaire:
         books_url_list_for_category = recuperation_books_url_from_page(liste_url)
         # Lance fonction recuperation d'information et ajout dans le csv a partir d une url
         for books_url in books_url_list_for_category:
-            liste_info = recuperation_info_livre(books_url)
+            liste_info = recuperation_info_livre(books_url, categorie_name)
             # Ajouter les informations au CSV
             fichier_chemin_complet = Path(categorie_path) / nom_fichier_csv
             with open(fichier_chemin_complet, 'a', newline='', encoding='utf-8') as dico_csv:
