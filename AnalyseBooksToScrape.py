@@ -64,11 +64,11 @@ def generation_nom_csv(categorie):
     return nomfichier
 
 
-def create_csv_jour(nomfichier, path):
+def create_csv_jour(nomfichier, chemin):
     """ cree un fichier csv qui contient la date du jour et ajoute les entetes """
-    fichier_chemin_complet = Path(path) / nomfichier
-    print(fichier_chemin_complet)
-    with open(fichier_chemin_complet, 'w', newline='', encoding='utf-8-sig') as csv_du_jour:
+    fichier_chemin = Path(chemin) / nomfichier
+    print(fichier_chemin)
+    with open(fichier_chemin, 'w', newline='', encoding='utf-8-sig') as csv_du_jour:
         writer = csv.writer(csv_du_jour, delimiter='²', quotechar='|')
         writer.writerow(['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax',
                          'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating',
@@ -95,7 +95,6 @@ def recuperation_info_livre(url_du_livre):
     book_price_with_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
         find(string="Price (incl. tax)").find_next('td')
     book_price_with_tax = clean_balises(book_price_with_tax, 'td').strip('£')
-    print(book_price_with_tax)
     liste_des_infos = liste_des_infos+'²'+str(book_price_with_tax)
     # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
     book_price_without_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
@@ -196,15 +195,6 @@ def renvoi_nombre_de_page_par_categorie(url_page):
 
     return liste_url_livres
 
-
-def lister_url_categorie(url_page_1, nombre_de_page):
-    """ liste toutes les urls des pages d'une catégorie """
-    liste_url_livres = [url_page_1]
-    for i in range(nombre_de_page-1):
-        liste_url_livres.append(url_page_1.replace('index.html', 'page-' + str(i+2) + '.html'))
-    return liste_url_livres
-
-
 def recuperation_books_url_from_page(category_url_page):
     """ liste toutes les url des livres d'une page de catégorie"""
     categorie_scrapped_lxml = recuperation_et_parsing_lxml(category_url_page)
@@ -213,10 +203,10 @@ def recuperation_books_url_from_page(category_url_page):
                                                             '//ol[@class="row"]'
                                                             '//article/h3/a/@href')
     total_url_page = []
-    for i in range(len(books_url_from_category)):
-
-        total_url_page.append(str(books_url_from_category[i]).replace('../../../', 'http://books.toscrape.com'
+    for single_book_url in books_url_from_category:
+        total_url_page.append(str(single_book_url).replace('../../../', 'http://books.toscrape.com'
                                                                                    '/catalogue/'))
+
     return total_url_page
 
 
