@@ -49,7 +49,7 @@ def clean_balises(ligne_a_cleaner, balise_html):
     balise_debut = '<' + balise_html + '>'
     balise_fin = '</' + balise_html + '>'
     if str(ligne_a_cleaner).startswith(str(balise_debut)) and str(ligne_a_cleaner).endswith(str(balise_fin)):
-        contenu = str(ligne_a_cleaner).replace('<'+balise_html+'>', '').replace('</'+balise_html+'>', '')
+        contenu = str(ligne_a_cleaner).replace('<' + balise_html + '>', '').replace('</' + balise_html + '>', '')
     else:
         fichiererreur = open('donnees/erreur.txt', "a")
         fichiererreur.write("la balise" + balise_html + "était attendue pour l'information" + ligne_a_cleaner + "\n")
@@ -121,38 +121,49 @@ def recuperation_info_livre(url_du_livre):
         liste_infos_format_liste.append(book_title)
     # BookPriceWithTax = Recupere l'information dans les données srcappées et la clean
     if (clean_balises(scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="Price (incl. tax)")
-                              .find_next('td'), 'td')) is None :
+       .find_next('td'), 'td')) is None:
         fichiererreur = open('donnees/erreur.txt', "a")
         fichiererreur.write("Il n'y a pas de Prix avec taxe renseigné pour " + str(book_url) + "\n")
         fichiererreur.close()
         liste_infos_format_liste.append("0")
-    else :
-        book_price_with_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
-            find(string="Price (incl. tax)").find_next('td')
+    else:
+        book_price_with_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}). \
+         find(string="Price (incl. tax)").find_next('td')
         book_price_with_tax = clean_balises(book_price_with_tax, 'td').strip('£')
         liste_infos_format_liste.append(book_price_with_tax)
     # BookPriceWithoutTax = Recupere l'information dans les données scrappées et la clean
-    if (clean_balises(scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
-        find(string="Price (excl. tax)").find_next('td'), 'td')) is None :
+    if (clean_balises(scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="Price (excl. tax)")
+       .find_next('td'), 'td')) is None:
         fichiererreur = open('donnees/erreur.txt', "a")
         fichiererreur.write("Il n'y a pas de Prix sans taxe renseigné pour " + str(book_url) + "\n")
         fichiererreur.close()
-        liste_infos_format_liste.append("0")
-    else :
-        book_price_without_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
+        liste_infos_format_liste.append("")
+    else:
+        book_price_without_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}). \
             find(string="Price (excl. tax)").find_next('td')
         book_price_without_tax = clean_balises(book_price_without_tax, 'td').strip('£')
         liste_infos_format_liste.append(book_price_without_tax)
     # BookNumberAvailable = Recupere l'information dans les données scrappées et la clean
-    book_number_available = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
-        find(string="Availability").find_next('td')
-    book_number_available = str(book_number_available)
-    nombre_a_renvoyer = ''
-    for i in range(len(book_number_available)):
-        if book_number_available[i].isdigit():
-            nombre_a_renvoyer = nombre_a_renvoyer + book_number_available[i]
-    book_number_available = nombre_a_renvoyer
-    liste_infos_format_liste.append(book_number_available)
+    if (clean_balises(scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="Availability")
+       .find_next('td'), 'td')).startswith("In stock"):
+        book_number_available = scrapped_page_bs4.find("table", {"class": "table table-striped"}) \
+            .find(string="Availability").find_next('td')
+        book_number_available = str(book_number_available)
+        nombre_a_renvoyer = ''
+        for i in range(len(book_number_available)):
+            if book_number_available[i].isdigit():
+                nombre_a_renvoyer = nombre_a_renvoyer + book_number_available[i]
+        book_number_available = nombre_a_renvoyer
+        liste_infos_format_liste.append(book_number_available)
+    elif (clean_balises(scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="Availability")
+          .find_next('td'), 'td')).startswith("Out of stock"):
+        liste_infos_format_liste.append(0)
+    else:
+        fichiererreur = open('donnees/erreur.txt', "a")
+        fichiererreur.write("Il n'y a pas d'information de disponibilité renseigné pour " + str(book_url) + "\n")
+        fichiererreur.close()
+        liste_infos_format_liste.append("")
+
     # BookDescription = Recupere l'information dans les données scrappées et la clean
     # Verifie également qu'une description est disponible
     test_description = scrapped_page_lxml.xpath('//article[@class="product_page"]'
@@ -244,7 +255,7 @@ def recuperation_books_url_from_page(category_url_page):
     total_url_page = []
     for single_book_url in books_url_from_category:
         total_url_page.append(str(single_book_url).replace('../../../', 'http://books.toscrape.com'
-                                                           '/catalogue/'))
+                                                                        '/catalogue/'))
 
     return total_url_page
 
