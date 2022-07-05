@@ -109,7 +109,7 @@ def recuperation_info_livre(url_du_livre):
         fichiererreur.write("Il n'y a pas de numéro UPC renseigné pour " + str(book_url) + "\n")
         fichiererreur.close()
         liste_infos_format_liste.append("Pas de numéro UPC renseigné")
-    # BookTitle = Recupere l'information dans les données scappées et la clean
+    # BookTitle = Recupere l'information dans les données scrappées et la clean
     if (scrapped_page_bs4.find("div", {"class": "col-sm-6 product_main"}).find('h1')) is None:
         fichiererreur = open('donnees/erreur.txt', "a")
         fichiererreur.write("Il n'y a pas de titre renseigné pour " + str(book_url) + "\n")
@@ -119,17 +119,31 @@ def recuperation_info_livre(url_du_livre):
         book_title = scrapped_page_bs4.find("div", {"class": "col-sm-6 product_main"}).find('h1')
         book_title = clean_balises(book_title, 'h1')
         liste_infos_format_liste.append(book_title)
-    # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
-    book_price_with_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
-        find(string="Price (incl. tax)").find_next('td')
-    book_price_with_tax = clean_balises(book_price_with_tax, 'td').strip('£')
-    liste_infos_format_liste.append(book_price_with_tax)
-    # BookPriceWithoutTax = Recupere l'information dans les données scappées et la clean
-    book_price_without_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
-        find(string="Price (excl. tax)").find_next('td')
-    book_price_without_tax = clean_balises(book_price_without_tax, 'td').strip('£')
-    liste_infos_format_liste.append(book_price_without_tax)
-    # BookNumberAvailable = Recupere l'information dans les données scappées et la clean
+    # BookPriceWithTax = Recupere l'information dans les données srcappées et la clean
+    if (clean_balises(scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="Price (incl. tax)")
+                              .find_next('td'), 'td')) is None :
+        fichiererreur = open('donnees/erreur.txt', "a")
+        fichiererreur.write("Il n'y a pas de Prix avec taxe renseigné pour " + str(book_url) + "\n")
+        fichiererreur.close()
+        liste_infos_format_liste.append("0")
+    else :
+        book_price_with_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
+            find(string="Price (incl. tax)").find_next('td')
+        book_price_with_tax = clean_balises(book_price_with_tax, 'td').strip('£')
+        liste_infos_format_liste.append(book_price_with_tax)
+    # BookPriceWithoutTax = Recupere l'information dans les données scrappées et la clean
+    if (clean_balises(scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
+        find(string="Price (excl. tax)").find_next('td'), 'td')) is None :
+        fichiererreur = open('donnees/erreur.txt', "a")
+        fichiererreur.write("Il n'y a pas de Prix sans taxe renseigné pour " + str(book_url) + "\n")
+        fichiererreur.close()
+        liste_infos_format_liste.append("0")
+    else :
+        book_price_without_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
+            find(string="Price (excl. tax)").find_next('td')
+        book_price_without_tax = clean_balises(book_price_without_tax, 'td').strip('£')
+        liste_infos_format_liste.append(book_price_without_tax)
+    # BookNumberAvailable = Recupere l'information dans les données scrappées et la clean
     book_number_available = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
         find(string="Availability").find_next('td')
     book_number_available = str(book_number_available)
@@ -139,7 +153,7 @@ def recuperation_info_livre(url_du_livre):
             nombre_a_renvoyer = nombre_a_renvoyer + book_number_available[i]
     book_number_available = nombre_a_renvoyer
     liste_infos_format_liste.append(book_number_available)
-    # BookDescription = Recupere l'information dans les données scappées et la clean
+    # BookDescription = Recupere l'information dans les données scrappées et la clean
     # Verifie également qu'une description est disponible
     test_description = scrapped_page_lxml.xpath('//article[@class="product_page"]'
                                                 '/div[@id="product_description"]'
@@ -152,14 +166,14 @@ def recuperation_info_livre(url_du_livre):
     else:
         book_description = "No Description Available"
     liste_infos_format_liste.append(book_description)
-    # BookCategory =  Recupere l'information dans les données scappées et la clean
+    # BookCategory =  Recupere l'information dans les données scrappées et la clean
     book_category = scrapped_page_lxml.xpath('//div[@class="page_inner"]'
                                              '/ul[@class="breadcrumb"]'
                                              '/li[last()-1]'
                                              '/a/text()')
     book_category = clean_resultat_xpath(book_category)
     liste_infos_format_liste.append(book_category)
-    # BookReviewRating =  Recupere l'information dans les données scappées et la clean
+    # BookReviewRating =  Recupere l'information dans les données scrappées et la clean
     book_rating = scrapped_page_lxml.xpath('//article[@class="product_page"]'
                                            '/div[@class="row"]'
                                            '/div[@class="col-sm-6 product_main"]'
@@ -182,7 +196,7 @@ def recuperation_info_livre(url_du_livre):
     else:
         book_rating = "None"
     liste_infos_format_liste.append(book_rating)
-    # BookImageUrl =  Recupere l'information dans les données scappées et la clean
+    # BookImageUrl =  Recupere l'information dans les données scrappées et la clean
     book_pic_url = scrapped_page_lxml.xpath('//article[@class="product_page"]'
                                             '/div[@class="row"]'
                                             '/div[@class="col-sm-6"]'
