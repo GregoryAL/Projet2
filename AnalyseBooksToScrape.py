@@ -108,13 +108,17 @@ def recuperation_info_livre(url_du_livre):
         fichiererreur = open('donnees/erreur.txt', "a")
         fichiererreur.write("Il n'y a pas de numéro UPC renseigné pour " + str(book_url) + "\n")
         fichiererreur.close()
-        liste_infos_format_liste.append("Pas de numéro UPC")
-
-
+        liste_infos_format_liste.append("Pas de numéro UPC renseigné")
     # BookTitle = Recupere l'information dans les données scappées et la clean
-    book_title = scrapped_page_bs4.find("div", {"class": "col-sm-6 product_main"}).find('h1')
-    book_title = clean_balises(book_title, 'h1')
-    liste_infos_format_liste.append(book_title)
+    if (scrapped_page_bs4.find("div", {"class": "col-sm-6 product_main"}).find('h1')) is None:
+        fichiererreur = open('donnees/erreur.txt', "a")
+        fichiererreur.write("Il n'y a pas de titre renseigné pour " + str(book_url) + "\n")
+        fichiererreur.close()
+        liste_infos_format_liste.append("Pas de titre renseigné")
+    else:
+        book_title = scrapped_page_bs4.find("div", {"class": "col-sm-6 product_main"}).find('h1')
+        book_title = clean_balises(book_title, 'h1')
+        liste_infos_format_liste.append(book_title)
     # BookPriceWithTax = Recupere l'information dans les données scappées et la clean
     book_price_with_tax = scrapped_page_bs4.find("table", {"class": "table table-striped"}).\
         find(string="Price (incl. tax)").find_next('td')
