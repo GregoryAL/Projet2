@@ -168,13 +168,33 @@ def recuperation_info_livre(url_du_livre):
     return liste_des_infos
 
 
-def recherche_nombre_de_page(url_parsed):
+def renvoi_nombre_de_page_par_categorie(url_page):
     """" recherche le nombre de page et renvoie le nombre """
-    nombre_livre_par_page = 20
-    nombre_de_page = url_parsed.xpath('//div[@class="row"]//form[@class="form-horizontal"]/strong[1]/text()')
-    nombre_de_page = clean_resultat_xpath(nombre_de_page)
-    nombre_de_page = (int(nombre_de_page)/nombre_livre_par_page).__ceil__()
-    return nombre_de_page
+    nombre_de_page = 1
+    scrapped_page_categorie = recuperation_et_parsing_lxml(url_page)
+    presence_next = scrapped_page_categorie.xpath('//div[@class="page_inner"]'
+                                                  '//ul[@class="pager"]'
+                                                  '/li[@class="next"]/a/text()')
+    # initialisation de variables pour pouvoir les utiliser dans la boucle while
+    next_url_parsed = scrapped_page_categorie
+    liste_url_livres = [url_page]
+    base_url = url_page.replace('index.html', '')
+    while presence_next == ['next']:
+        nombre_de_page = nombre_de_page + 1
+        suffixe_url = clean_resultat_xpath(next_url_parsed.xpath(
+                                                                '//div[@class="page_inner"]'
+                                                                '//ul[@class="pager"]'
+                                                                '/li[@class="next"]/a/@href'))
+        prochaine_page_categorie = base_url + suffixe_url
+        liste_url_livres.append(prochaine_page_categorie)
+        next_url_parsed = recuperation_et_parsing_lxml(prochaine_page_categorie)
+        presence_next = next_url_parsed.xpath('//div[@class="page_inner"]'
+                                         '//ul[@class="pager"]'
+                                         '/li[@class="next"]/a/text()')
+
+
+
+    return liste_url_livres
 
 
 def lister_url_categorie(url_page_1, nombre_de_page):
@@ -254,12 +274,10 @@ for categorie_name in categories_dictionnaire:
     categorie_path.mkdir(exist_ok=True)
     nom_fichier_csv = generation_nom_csv(categorie_name)
     create_csv_jour(nom_fichier_csv, categorie_path)
-    categorie_scrapped_lxml = recuperation_et_parsing_lxml(categories_dictionnaire[categorie_name])
-    # Lance fonction de recherche du nombre de page de la catégorie
-    nombre_de_page = recherche_nombre_de_page(categorie_scrapped_lxml)
-    # fonction listant url des pages de catégorie
-    liste_url_categorie = lister_url_categorie(categories_dictionnaire[categorie_name], int(nombre_de_page))
+    # Lance fonction de recherche de la liste des urls d une categorie
+    liste_url_categorie = renvoi_nombre_de_page_par_categorie(categories_dictionnaire[categorie_name])
     # Lance fonction de recuperation des url des livres des pages d'une catégories dans une liste
+    print(liste_url_categorie)
     for liste_url in liste_url_categorie:
         books_url_list_for_category = recuperation_books_url_from_page(liste_url)
         # Lance fonction recuperation d'information et ajout dans le csv a partir d une url
