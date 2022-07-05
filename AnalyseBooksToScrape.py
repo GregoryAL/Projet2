@@ -100,9 +100,17 @@ def recuperation_info_livre(url_du_livre):
     scrapped_page_bs4 = recuperation_et_parsing(book_url)
     scrapped_page_lxml = recuperation_et_parsing_lxml(book_url)
     # BookUPC = Recupere l'information dans les données scrappées et la clean
-    book_upc = scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="UPC").find_next('td')
-    book_upc = clean_balises(book_upc, 'td')
-    liste_infos_format_liste.append(book_upc)
+    if (scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="UPC")) == "UPC":
+        book_upc = scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="UPC").find_next('td')
+        book_upc = clean_balises(book_upc, 'td')
+        liste_infos_format_liste.append(book_upc)
+    else:
+        fichiererreur = open('donnees/erreur.txt', "a")
+        fichiererreur.write("Il n'y a pas de numéro UPC renseigné pour " + str(book_url) + "\n")
+        fichiererreur.close()
+        liste_infos_format_liste.append("Pas de numéro UPC")
+
+
     # BookTitle = Recupere l'information dans les données scappées et la clean
     book_title = scrapped_page_bs4.find("div", {"class": "col-sm-6 product_main"}).find('h1')
     book_title = clean_balises(book_title, 'h1')
