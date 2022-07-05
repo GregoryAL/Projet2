@@ -231,7 +231,7 @@ fichier_d_erreur.close()
 # Lance recuperation et parsing des données de la page d'acceuil de books.tosrape
 site_url = 'http://books.toscrape.com/'
 site_scrapped_lxml = recuperation_et_parsing_lxml(site_url)
-# Recupere toutes les catégories
+# Recupere tous les noms et urls de catégorie et les stocke dans un dictionnaire
 categories_dictionnaire = {}
 urls_of_categories = []
 urls_of_categories_brut = site_scrapped_lxml.xpath('//div[@class="side_categories"]'
@@ -239,8 +239,6 @@ urls_of_categories_brut = site_scrapped_lxml.xpath('//div[@class="side_categorie
                                            )
 for urls in urls_of_categories_brut:
     urls_of_categories.append("http://books.toscrape.com/" + str(urls))
-
-print(urls_of_categories)
 name_of_categories = []
 name_of_categories_brut = site_scrapped_lxml.xpath('//div[@class="side_categories"]'
                                            '/ul[@class="nav nav-list"]/li/ul/li/a/text()'
@@ -250,31 +248,26 @@ for each_name in name_of_categories_brut:
 for each_url in urls_of_categories:
     index_list = urls_of_categories.index(each_url)
     categories_dictionnaire[name_of_categories[index_list]] = each_url
-print(categories_dictionnaire)
 # Creer un csv avec les entetes indiquées à la date du jour pour chaque catégorie
 for categorie_name in categories_dictionnaire:
     categorie_path = chemin_donnees / categorie_name
-    print(categorie_path)
     categorie_path.mkdir(exist_ok=True)
     nom_fichier_csv = generation_nom_csv(categorie_name)
     create_csv_jour(nom_fichier_csv, categorie_path)
-# Applique le scrapping de tous les livres d'une catégorie à toutes les catégories
-for i in range(len(categories_url_whole_site)):
-    # Lance recuperation et parsing des données d'une catégorie
-    premiere_page_categorie_url = categories_url_whole_site[i]
-    categorie_scrapped_lxml = recuperation_et_parsing_lxml(premiere_page_categorie_url)
+    categorie_scrapped_lxml = recuperation_et_parsing_lxml(categories_dictionnaire[categorie_name])
     # Lance fonction de recherche du nombre de page de la catégorie
     nombre_de_page = recherche_nombre_de_page(categorie_scrapped_lxml)
     # fonction listant url des pages de catégorie
-    liste_url_categorie = lister_url_categorie(premiere_page_categorie_url, int(nombre_de_page))
+    liste_url_categorie = lister_url_categorie(categories_dictionnaire[categorie_name], int(nombre_de_page))
     # Lance fonction de recuperation des url des livres des pages d'une catégories dans une liste
-    for j in range(len(liste_url_categorie)):
-        i_url = liste_url_categorie[j]
-        books_url_list_for_category = recuperation_books_url_from_page(i_url)
+    for liste_url in liste_url_categorie:
+        books_url_list_for_category = recuperation_books_url_from_page(liste_url)
         # Lance fonction recuperation d'information et ajout dans le csv a partir d une url
-        for k in range(len(books_url_list_for_category)):
-            liste_info = recuperation_info_livre(books_url_list_for_category[k])
+        for books_url in books_url_list_for_category:
+            liste_info = recuperation_info_livre(books_url)
             # Ajouter les informations au CSV
-            with open(nom_fichier_csv, 'a', newline='', encoding='utf-8') as dico_csv:
+            fichier_chemin_complet = Path(categorie_path) / nom_fichier_csv
+            with open(fichier_chemin_complet, 'a', newline='', encoding='utf-8') as dico_csv:
                 writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
                 writercsv.writerow([liste_info])
+
