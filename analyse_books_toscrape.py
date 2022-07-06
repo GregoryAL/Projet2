@@ -61,10 +61,12 @@ for categorie_name in categories_dictionnaire:
                 url_image = liste_info[9]
                 nom_image = liste_info[1]+"."+str(liste_info[9])[-3:]
                 repertoire_et_nom_image = categorie_image_path / nom_image
-                image_raw = requests.get(url_image)
-                image_recuperee = open(repertoire_et_nom_image, "wb")
-                image_recuperee.write(image_raw.content)
-                image_recuperee.close()
+                print(repertoire_et_nom_image)
+                if not repertoire_et_nom_image.is_file():
+                    image_raw = requests.get(url_image)
+                    image_recuperee = open(repertoire_et_nom_image, "wb")
+                    image_recuperee.write(image_raw.content)
+                    image_recuperee.close()
                 lien_photo_local = '=LIEN_HYPERTEXTE("'+str(repertoire_et_nom_image)+'";"'+nom_image+'")'
                 liste_info.append(lien_photo_local)
             # Ajouter les informations au CSV
