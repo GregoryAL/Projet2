@@ -311,15 +311,18 @@ for categorie_name in categories_dictionnaire:
             # Recuperation des informations pour chaque livre
             liste_info = recuperation_info_livre(books_url, categorie_name)
             # Recuperation de la photo pour chaque livre
-            url_image = liste_info[9]
-            nom_image = liste_info[1]+"."+str(liste_info[9])[-3:]
-            repertoire_et_nom_image = categorie_image_path / nom_image
-            image_raw = requests.get(url_image)
-            image_recuperee = open(repertoire_et_nom_image, "wb")
-            image_recuperee.write(image_raw.content)
-            image_recuperee.close()
-            lien_photo_local = '=LIEN_HYPERTEXTE("'+str(repertoire_et_nom_image)+'";"Lien Local Vers Photo")'
-            liste_info.append(lien_photo_local)
+            if str(liste_info[9]) == "Pas de photo disponible":
+                liste_info.append("Pas de photo disponible")
+            else:
+                url_image = liste_info[9]
+                nom_image = liste_info[1]+"."+str(liste_info[9])[-3:]
+                repertoire_et_nom_image = categorie_image_path / nom_image
+                image_raw = requests.get(url_image)
+                image_recuperee = open(repertoire_et_nom_image, "wb")
+                image_recuperee.write(image_raw.content)
+                image_recuperee.close()
+                lien_photo_local = '=LIEN_HYPERTEXTE("'+str(repertoire_et_nom_image)+'";"Lien Local Vers Photo")'
+                liste_info.append(lien_photo_local)
             # Ajouter les informations au CSV
             fichier_chemin_complet = Path(categorie_path) / nom_fichier_csv
             with open(fichier_chemin_complet, 'a', newline='', encoding='utf-8') as dico_csv:
