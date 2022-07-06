@@ -84,7 +84,7 @@ def create_csv_jour(nom_fichier, chemin):
     """ Cree un fichier csv qui contient la date du jour et ajoute les entêtes """
     fichier_chemin = Path(chemin) / nom_fichier
     with open(fichier_chemin, 'w', newline='', encoding='utf-8-sig') as csv_du_jour:
-        writer = csv.writer(csv_du_jour, delimiter='²', quotechar='|')
+        writer = csv.writer(csv_du_jour, delimiter='\t', quotechar='|')
         writer.writerow(['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax',
                          'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating',
                          'image_url', 'local_image_link'])
@@ -326,5 +326,5 @@ for categorie_name in categories_dictionnaire:
             # Ajouter les informations au CSV
             fichier_chemin_complet = Path(categorie_path) / nom_fichier_csv
             with open(fichier_chemin_complet, 'a', newline='', encoding='utf-8') as dico_csv:
-                writercsv = csv.writer(dico_csv, delimiter='²', quotechar='|')
+                writercsv = csv.writer(dico_csv, delimiter='\t', quotechar='|')
                 writercsv.writerow(liste_info)
