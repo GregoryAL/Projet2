@@ -87,7 +87,7 @@ Le temps nécessaire à la récupération de toutes les informations est assez g
 
 2. Dans ce dossier il va créer un repertoire par catégorie
 
-3. Dans ces sous dossiers il stockera un fichier csv au nom de la catégorie et a la date du jour qui stockera les informations de tous les livres de la catégorie
+3. Dans ces sous dossiers il stockera un fichier csv, dont le délimiteur est tab, au nom de la catégorie et a la date du jour qui stockera les informations de tous les livres de la catégorie
 
 4. Il va créer également un sous dossier *image* dans celui de *categorie* et y stockera l'image de 1ère de couverture
 

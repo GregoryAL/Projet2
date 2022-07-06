@@ -82,4 +82,4 @@ with open('donnees/erreur.txt') as fichier_erreur_en_lecture:
     else:
         print("il y a eu des erreurs pendant l'extraction. Merci de lire le fichier erreur.txt pour savoir lesquelles.")
 print("Extraction terminée. Le fichier csv de chaque catégorie est disponible dans le sous dossier portant le nom de la"
-      "catégorie.")
+      " catégorie.")
