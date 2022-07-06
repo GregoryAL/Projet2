@@ -38,6 +38,7 @@ for each_url in urls_of_categories:
     categories_dictionnaire[name_of_categories[index_list]] = each_url
 # Créer un csv avec les entêtes indiquées à la date du jour pour chaque catégorie
 for categorie_name in categories_dictionnaire:
+    print("Recuperation des informations des livres de la catégorie ", categorie_name, " en cours...")
     categorie_path = chemin_donnees / categorie_name
     categorie_path.mkdir(exist_ok=True)
     categorie_image_path = categorie_path / "image"
@@ -61,7 +62,6 @@ for categorie_name in categories_dictionnaire:
                 url_image = liste_info[9]
                 nom_image = liste_info[1]+"."+str(liste_info[9])[-3:]
                 repertoire_et_nom_image = categorie_image_path / nom_image
-                print(repertoire_et_nom_image)
                 if not repertoire_et_nom_image.is_file():
                     image_raw = requests.get(url_image)
                     image_recuperee = open(repertoire_et_nom_image, "wb")
@@ -74,3 +74,12 @@ for categorie_name in categories_dictionnaire:
             with open(fichier_chemin_complet, 'a', newline='', encoding='utf-8') as dico_csv:
                 writercsv = csv.writer(dico_csv, delimiter='\t', quotechar='|')
                 writercsv.writerow(liste_info)
+# Message indiquant la fin du script. Précise également s'il y a eu des erreurs
+with open('donnees/erreur.txt') as fichier_erreur_en_lecture:
+    test_fichier_erreur = fichier_erreur_en_lecture.readlines()
+    if test_fichier_erreur == "":
+        print("Il n'y a pas eu d'erreur pendant l'extraction")
+    else:
+        print("il y a eu des erreurs pendant l'extraction. Merci de lire le fichier erreur.txt pour savoir lesquelles.")
+print("Extraction terminée. Le fichier csv de chaque catégorie est disponible dans le sous dossier portant le nom de la"
+      "catégorie.")

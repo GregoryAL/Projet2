@@ -5,7 +5,7 @@
 
 ## Fonctionnalité :  
   
-Le programme a pour but de récupérer, pour tous les livres du site books.toscrape.com, les informations suivantes :  
+Le programme a pour but de récupérer, pour tous les livres du site *[books.toscrape](http://books.toscrape.com/index.html)*, les informations suivantes :  
 - URL du livre
 - Universal Product Code
 - Titre
@@ -17,58 +17,70 @@ Le programme a pour but de récupérer, pour tous les livres du site books.toscr
 - Moyenne des avis
 - URL de l'image de première de couverture  
 
-Toutes ces informations seront stockées dans un fichier csv différent par catégorie.
-Il récupèrera également localement l'image de première de couverture et en précise le lien local et le nom dans le fichier csv.
+Toutes ces informations seront stockées dans un fichier csv différent par catégorie.  
+Il récupèrera également localement l'image de première de couverture et en précisera le lien local et le nom dans le fichier csv.
 
 ## Limitation :  
 
-On ne peut pas récupérer les informations d'un livre qui ne se trouverait dans aucune catégorie.  
+On ne peut pas récupérer les informations d'un livre qui ne se trouverait pas dans une catégorie.  
 Le temps nécessaire à la récupération de toutes les informations est assez grand.
   
 ## Installation et utilisation :
   
 ### Créer un environnement virtuel Python : 
  
-#### en ligne de commande, se placer dans le dossier de travail désiré :
+- #### En ligne de commande, se placer dans le répertoire de travail désiré :
 
-*cd /chemin/vers_le/repertoire_desire*
+  - sous Windows, saisir :
+
+  *cd \chemin\vers_le\repertoire_desire*  
+
+  - sous Linux, saisir :
+   
+  *cd chemin/vers_le/repertoire_desire*
      
-#### créer un environnement virtuel dans le repertoire de travail désiré :
+- #### Créer un environnement virtuel dans le repertoire de travail désiré :
  
-- sous Windows, saisir 
+  - sous Windows, saisir :
 
-*python -m venv env*  
+  *python -m venv env*  
 
-- sous Linux, saisir
+  - sous Linux, saisir :
    
-*python3 -m venv env*
+  *python3 -m venv env*
    
-#### activer l'environnement virtuel
+- #### Activer l'environnement virtuel
        
-- sous Windows, saisir  
+  - sous Windows, saisir : 
        
-*env\Scripts\activate.bat*
+  *env\Scripts\activate.bat*
        
-- sous Linux, saisir  
+  - sous Linux, saisir : 
       
-*source env/bin/activate*  
+  *source env/bin/activate*  
 
 ### Préparer l'environnement virtuel pour qu'il puisse lancer notre script
 
-#### Télécharger les scripts Python : *analyse_books_toscrape.py* et *fonctions_recuperation* ainsi que le fichier *requirements.txt* et placer ces fichiers dans *chemin/vers_le/repertoire_desire/*  
+- #### Télécharger les scripts Python : *analyse_books_toscrape.py* et *fonctions_recuperation* ainsi que le fichier *requirements.txt* et placer ces fichiers dans *chemin/vers_le/repertoire_desire/*  
 
-#### Récuperer les modules / packages nécessaires pour faire fonctionner notre script :
+- #### Récupérer les modules / packages nécessaires pour faire fonctionner notre script :
     
-Toujours en étant dans */chemin/vers_le/repertoire_desire* saisir :  
+    Toujours en étant dans */chemin/vers_le/repertoire_desire* saisir :  
     
-*pip install -r requirements.txt*
+    *pip install -r requirements.txt*
 
 ### Lancer notre script de récupération d'informations  
 
-#### En ligne de commande, toujours en étant dans *chemin/vers_le/repertoire_desire*, saisir :
+- #### En ligne de commande, toujours en étant dans *chemin/vers_le/repertoire_desire*, saisir :
 
-*python .\analyse_books_toscrape.py*
-
+  - sous Windows, saisir :
+       
+  *python .\analyse_books_toscrape.py*
+       
+  - sous Linux, saisir : 
+      
+  *python3 analyse_books_toscrape.py*  
+    
 ## Résultat attendu :  
   
 1. Le script va créer un dossier *donnee* dans *chemin/vers_le/repertoire_desire* 
@@ -80,6 +92,7 @@ Toujours en étant dans */chemin/vers_le/repertoire_desire* saisir :
 4. Il va créer également un sous dossier *image* dans celui de *categorie* et y stockera l'image de 1ère de couverture
 
 5. En cas d'erreur lors du traitement, il créera un fichier *erreur.txt* dans *chemin/vers_le/repertoire_desire* et y stockera le type d'erreur ainsi que l'url / information pour laquelle elle s'est produite. Ce fichier écrasera l'ancien s'il en existait déjà un.
+6. À la fin du script, il indiquera s'il y a eu des erreurs, puis indiquera que l'extraction est terminée.
 
 
 
