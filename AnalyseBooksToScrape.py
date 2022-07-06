@@ -321,7 +321,7 @@ for categorie_name in categories_dictionnaire:
                 image_recuperee = open(repertoire_et_nom_image, "wb")
                 image_recuperee.write(image_raw.content)
                 image_recuperee.close()
-                lien_photo_local = '=LIEN_HYPERTEXTE("'+str(repertoire_et_nom_image)+'";"Lien Local Vers Photo")'
+                lien_photo_local = '=LIEN_HYPERTEXTE("'+str(repertoire_et_nom_image)+'";"'+nom_image+'")'
                 liste_info.append(lien_photo_local)
             # Ajouter les informations au CSV
             fichier_chemin_complet = Path(categorie_path) / nom_fichier_csv
