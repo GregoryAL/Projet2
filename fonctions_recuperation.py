@@ -85,9 +85,9 @@ def create_csv_jour(nom_fichier, chemin):
     fichier_chemin = Path(chemin) / nom_fichier
     with open(fichier_chemin, 'w', newline='', encoding='utf-8-sig') as csv_du_jour:
         writer = csv.writer(csv_du_jour, delimiter='\t', quotechar='|')
-        writer.writerow(['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax',
-                         'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating',
-                         'image_url', 'local_image_link'])
+        writer.writerow(['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax (£)',
+                         'price_excluding_tax (£)', 'number_available', 'product_description', 'category',
+                         'review_rating', 'image_url', 'local_image_link'])
 
 
 def recuperation_info_livre(url_du_livre, categorie_livre):
