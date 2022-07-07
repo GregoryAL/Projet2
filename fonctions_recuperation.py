@@ -18,28 +18,40 @@ def erreur_scrapping(url_non_joignable):
 def recuperation_et_parsing(url_a_scrapper_et_parser):
     """Récupère la page en argument, vérifie le bon fonctionnement et parse la page avec beautifulsoup.
     Renvoie la page parsée"""
-    scrapped_page = requests.get(url_a_scrapper_et_parser)
-    if scrapped_page.status_code == 200:
-        soup = BeautifulSoup(scrapped_page.content, 'html.parser')
-        return soup
+    try:
+        scrapped_page = requests.get(url_a_scrapper_et_parser)
+        if scrapped_page.status_code == 200:
+            soup = BeautifulSoup(scrapped_page.content, 'html.parser')
+            return soup
 
-    else:
-        print('un problème a été rencontré avec ', url_a_scrapper_et_parser, "Passage à l'étape suivante. ")
+        else:
+            print('un problème a été rencontré avec ', url_a_scrapper_et_parser, ".")
+            print(url_a_scrapper_et_parser, ' est enregistré dans le fichier erreur.txt')
+            erreur_scrapping(url_a_scrapper_et_parser)
+    except requests.exceptions.ConnectionError:
+        print('un problème a été rencontré avec ', url_a_scrapper_et_parser, ".")
         print(url_a_scrapper_et_parser, ' est enregistré dans le fichier erreur.txt')
         erreur_scrapping(url_a_scrapper_et_parser)
+        exit()
 
 
 def recuperation_et_parsing_lxml(url_a_scrapper_et_parser):
     """Récupère la page en argument, vérifie le bon fonctionnement et parse la page avec lxml.
     Renvoie la page parsée"""
-    scrapped_page = requests.get(url_a_scrapper_et_parser)
-    if scrapped_page.status_code == 200:
-        soup = lxml.html.fromstring(scrapped_page.content)
-        return soup
-    else:
-        print('un problème a été rencontré avec ', url_a_scrapper_et_parser, "Passage à l'étape suivante. ")
+    try:
+        scrapped_page = requests.get(url_a_scrapper_et_parser)
+        if scrapped_page.status_code == 200:
+            soup = lxml.html.fromstring(scrapped_page.content)
+            return soup
+        else:
+            print('un problème a été rencontré avec ', url_a_scrapper_et_parser, ".")
+            print(url_a_scrapper_et_parser, ' est enregistré dans le fichier erreur.txt')
+            erreur_scrapping(url_a_scrapper_et_parser)
+    except requests.exceptions.ConnectionError:
+        print('un problème a été rencontré avec ', url_a_scrapper_et_parser, ".")
         print(url_a_scrapper_et_parser, ' est enregistré dans le fichier erreur.txt')
         erreur_scrapping(url_a_scrapper_et_parser)
+        exit()
 
 
 def clean_balises(ligne_a_cleaner, balise_html):
