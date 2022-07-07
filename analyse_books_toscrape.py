@@ -8,7 +8,6 @@ import fonctions_recuperation
 
 """ Point d'entrée du programme de scrapping """
 
-
 # Creation d'un dossier donnees s'il n'existe pas à la racine du projet
 chemin_donnees = Path.cwd() / "donnees"
 chemin_donnees.mkdir(exist_ok=True)
@@ -75,11 +74,10 @@ for categorie_name in categories_dictionnaire:
                 writercsv = csv.writer(dico_csv, delimiter='\t', quotechar='|')
                 writercsv.writerow(liste_info)
 # Message indiquant la fin du script. Précise également s'il y a eu des erreurs
-with open('donnees/erreur.txt') as fichier_erreur_en_lecture:
-    test_fichier_erreur = fichier_erreur_en_lecture.readlines()
-    if test_fichier_erreur == "":
-        print("Il n'y a pas eu d'erreur pendant l'extraction")
-    else:
-        print("il y a eu des erreurs pendant l'extraction. Merci de lire le fichier erreur.txt pour savoir lesquelles.")
+path_fichier_erreur = Path("donnees/erreur.txt")
+if path_fichier_erreur.stat().st_size == 0:
+    print("Il n'y a pas eu d'erreur pendant l'extraction")
+else:
+    print("il y a eu des erreurs pendant l'extraction. Merci de lire le fichier erreur.txt pour savoir lesquelles.")
 print("Extraction terminée. Le fichier csv de chaque catégorie est disponible dans le sous dossier portant le nom de la"
       " catégorie.")

@@ -62,6 +62,8 @@ def clean_resultat_xpath(resultat):
         resultat_cleaned = str(resultat).strip(" [']")
     elif str(resultat).startswith('["') and str(resultat).endswith('"]'):
         resultat_cleaned = str(resultat).strip(' ["]')
+    elif str(resultat) == "[]":
+        resultat_cleaned = ""
     else:
         fichier_erreur = open('donnees/erreur.txt', "a")
         fichier_erreur.write("les caractères ['...'] étaient attendus pour l'information" + str(resultat) + "\n")
@@ -166,12 +168,13 @@ def recuperation_info_livre(url_du_livre, categorie_livre):
     test_description = scrapped_page_lxml.xpath('//article[@class="product_page"]'
                                                 '/div[@id="product_description"]'
                                                 '/h2/text()')
-    if test_description is None:
-        book_description = "No Description Available"
-    else:
+    test_description = clean_resultat_xpath(test_description)
+    if test_description == "Product Description":
         book_description = scrapped_page_lxml.xpath('//article[@class="product_page"]'
                                                     '/p/text()')
         book_description = clean_resultat_xpath(book_description)
+    else:
+        book_description = "No Description Available"
     liste_infos_format_liste.append(book_description)
     # BookCategory = Récupère l'information dans les données récupérée et la nettoie
     liste_infos_format_liste.append(categorie_livre)
