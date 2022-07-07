@@ -33,41 +33,41 @@ Le temps nécessaire à la récupération de toutes les informations est assez g
 
   - sous Windows, saisir :
 
-  *cd \chemin\vers_le\repertoire_desire*  
+  `cd \chemin\vers_le\repertoire_desire` 
 
   - sous Linux, saisir :
    
-  *cd chemin/vers_le/repertoire_desire*
+  `cd chemin/vers_le/repertoire_desire`
      
 - #### Créer un environnement virtuel dans le repertoire de travail désiré :
  
   - sous Windows, saisir :
 
-  *python -m venv env*  
+  `python -m venv env`  
 
   - sous Linux, saisir :
    
-  *python3 -m venv env*
+  `python3 -m venv env`
    
 - #### Activer l'environnement virtuel
        
   - sous Windows, saisir : 
        
-  *env\Scripts\activate.bat*
+  `env\Scripts\activate.bat`
        
   - sous Linux, saisir : 
       
-  *source env/bin/activate*  
+  `source env/bin/activate`  
 
 ### Préparer l'environnement virtuel pour qu'il puisse lancer notre script
 
-- #### Télécharger les scripts Python : *analyse_books_toscrape.py* et *fonctions_recuperation* ainsi que le fichier *requirements.txt* et placer ces fichiers dans *chemin/vers_le/repertoire_desire/*  
+- #### Télécharger les scripts Python : *[analyse_books_toscrape.py](analyse_books_toscrape.py)* et *[fonctions_recuperation.py](fonctions_recuperation.py)* ainsi que le fichier *[requirements.txt](requirements.txt)* et placer ces fichiers dans *chemin/vers_le/repertoire_desire/*  
 
 - #### Récupérer les modules / packages nécessaires pour faire fonctionner notre script :
     
     Toujours en étant dans */chemin/vers_le/repertoire_desire* saisir :  
     
-    *pip install -r requirements.txt*
+    `pip install -r requirements.txt`
 
 ### Lancer notre script de récupération d'informations  
 
@@ -75,11 +75,11 @@ Le temps nécessaire à la récupération de toutes les informations est assez g
 
   - sous Windows, saisir :
        
-  *python .\analyse_books_toscrape.py*
+  `python .\analyse_books_toscrape.py`
        
   - sous Linux, saisir : 
       
-  *python3 analyse_books_toscrape.py*  
+  `python3 analyse_books_toscrape.py`  
     
 ## Résultat attendu :  
   
