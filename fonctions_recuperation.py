@@ -159,13 +159,11 @@ def recuperation_info_livre(url_du_livre, categorie_livre):
        .find_next('td'), 'td')).startswith("In stock"):
         book_number_available = scrapped_page_bs4.find("table", {"class": "table table-striped"}) \
             .find(string="Availability").find_next('td')
-        book_number_available = str(book_number_available)
         nombre_a_renvoyer = ''
-        for i in range(len(book_number_available)):
-            if book_number_available[i].isdigit():
-                nombre_a_renvoyer = nombre_a_renvoyer + book_number_available[i]
-        book_number_available = nombre_a_renvoyer
-        liste_infos_format_liste.append(book_number_available)
+        for is_char_a_number in str(book_number_available):
+            if is_char_a_number.isdigit():
+                nombre_a_renvoyer = nombre_a_renvoyer + str(is_char_a_number)
+        liste_infos_format_liste.append(nombre_a_renvoyer)
     elif (clean_balises(scrapped_page_bs4.find("table", {"class": "table table-striped"}).find(string="Availability")
           .find_next('td'), 'td')).startswith("Out of stock"):
         liste_infos_format_liste.append(0)
