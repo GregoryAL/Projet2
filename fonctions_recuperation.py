@@ -235,8 +235,7 @@ def recuperation_info_livre(url_du_livre, categorie_livre):
 
 
 def renvoi_liste_url__livre_pour_toutes_pages_categorie(url_page):
-    """" Recherche le nombre de pages et renvoie le nombre """
-    nombre_de_page = 1
+    """" Recherche les urls des pages d'une catégorie """
     scrapped_page_categorie = recuperation_et_parsing_lxml(url_page)
     presence_next = scrapped_page_categorie.xpath('//div[@class="page_inner"]'
                                                   '//ul[@class="pager"]'
@@ -246,7 +245,6 @@ def renvoi_liste_url__livre_pour_toutes_pages_categorie(url_page):
     liste_url_livres = [url_page]
     base_url = url_page.replace('index.html', '')
     while presence_next == ['next']:
-        nombre_de_page = nombre_de_page + 1
         suffixe_url = clean_resultat_xpath(next_url_parsed.xpath('//div[@class="page_inner"]'
                                                                  '//ul[@class="pager"]'
                                                                  '/li[@class="next"]/a/@href'))
